@@ -42,7 +42,7 @@
   .profile-badge svg { width: 12px; height: 12px; flex-shrink: 0; }
   .profile-badge span { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 
-  main { flex: 1; padding: 20px 20px 10px; display: flex; flex-direction: column; gap: 14px; overflow-y: auto; }
+  main { flex: 1; padding: 20px 20px 10px; display: flex; flex-direction: column; gap: 14px; }
 
   /* ── Readiness hero ───────────────────────────────────────────────── */
   .hero { background: var(--surface); border: 1px solid var(--border); border-radius: 20px; padding: 24px 20px 20px; text-align: center; position: relative; overflow: hidden; transition: border-color 0.4s, padding 0.25s ease; }
@@ -51,7 +51,7 @@
   .hero.ready::before { background: var(--accent); opacity: 0.2; }
 
   /* Pinned: stick the summary to the top of the scroll area */
-  .hero.pinned { position: -webkit-sticky; position: sticky; top: 0; z-index: 20; }
+  .hero.pinned { position: -webkit-sticky; position: sticky; top: var(--safe-top); z-index: 20; }
   .hero.pinned.stuck { padding-top: 14px; padding-bottom: 14px; box-shadow: 0 -22px 0 var(--bg), 0 12px 22px -10px rgba(0,0,0,0.6); }
   .hero.pinned.stuck .hero-num { font-size: 40px; }
   .hero.pinned.stuck .hero-num .slash, .hero.pinned.stuck .hero-num .total { font-size: 28px; }
@@ -703,11 +703,10 @@
   function setupStickyObserver() {
     const sentinel = document.getElementById('hero-sentinel');
     const hero = document.getElementById('hero');
-    const rootEl = document.querySelector('main');
     if (!sentinel || !('IntersectionObserver' in window)) return;
     const obs = new IntersectionObserver(function(entries) {
       entries.forEach(function(e) { hero.classList.toggle('stuck', !e.isIntersecting); });
-    }, { root: rootEl, threshold: 0 });
+    }, { root: null, threshold: 0 });
     obs.observe(sentinel);
   }
 
