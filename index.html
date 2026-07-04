@@ -64,8 +64,20 @@
   .gauge-labels { display: flex; justify-content: space-between; font-size: 10px; color: var(--muted); font-family: 'Space Mono', monospace; }
 
   /* ── Checklist ────────────────────────────────────────────────────── */
-  .list-eyebrow { font-size: 11px; text-transform: uppercase; letter-spacing: 0.1em; color: var(--muted); margin: 4px 2px -2px; }
+  .list-header { display: flex; align-items: center; justify-content: space-between; gap: 10px; margin: 4px 2px -2px; }
+  .list-eyebrow { font-size: 11px; text-transform: uppercase; letter-spacing: 0.1em; color: var(--muted); }
   .checklist { display: flex; flex-direction: column; gap: 10px; }
+
+  .reset-inline {
+    -webkit-appearance: none; display: inline-flex; align-items: center; gap: 6px;
+    background: transparent; border: 1px solid var(--border); border-radius: 9px;
+    color: var(--muted); font-family: 'DM Sans', sans-serif; font-size: 11px; font-weight: 500;
+    padding: 6px 11px; cursor: pointer; white-space: nowrap;
+    transition: background 0.2s, border-color 0.2s, color 0.2s;
+  }
+  .reset-inline:active { border-color: var(--accent-mid); color: var(--accent); }
+  .reset-inline.primary { background: var(--accent-dim); border-color: var(--accent-mid); color: var(--accent); }
+  .reset-inline svg { width: 12px; height: 12px; flex-shrink: 0; }
 
   .item {
     -webkit-appearance: none; text-align: left; width: 100%;
@@ -119,18 +131,6 @@
   }
   .complete-banner.show { display: flex; }
   .complete-banner svg { width: 20px; height: 20px; flex-shrink: 0; }
-
-  .action-btn {
-    -webkit-appearance: none; width: 100%; padding: 13px; border-radius: 12px;
-    font-family: 'DM Sans', sans-serif; font-size: 14px; font-weight: 500; cursor: pointer;
-    display: flex; align-items: center; justify-content: center; gap: 8px;
-    transition: background 0.2s, border-color 0.2s, color 0.2s;
-    background: transparent; border: 1px solid var(--border); color: var(--muted);
-  }
-  .action-btn:active { border-color: var(--accent-mid); color: var(--accent); }
-  .action-btn.primary { background: var(--accent-dim); border-color: var(--accent-mid); color: var(--accent); }
-  .action-btn.primary:active { background: rgba(45,255,143,0.22); }
-  .action-btn svg { width: 15px; height: 15px; flex-shrink: 0; }
 
   .settings-btn { -webkit-appearance: none; width: 100%; margin: 2px 0 4px; padding: 12px; background: transparent; border: 1px solid var(--border); border-radius: 12px; color: var(--muted); font-family: 'DM Sans', sans-serif; font-size: 13px; font-weight: 500; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 7px; transition: border-color 0.2s, color 0.2s; }
   .settings-btn:active, .settings-btn.open { border-color: var(--accent-mid); color: var(--accent); }
@@ -238,13 +238,14 @@
     <span id="complete-text">All checks secure. You're cleared to tow.</span>
   </div>
 
-  <div class="list-eyebrow">Checklist</div>
+  <div class="list-header">
+    <div class="list-eyebrow">Checklist</div>
+    <button class="reset-inline" id="reset-btn" onclick="resetCheck()">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M23 4v6h-6"/><path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"/></svg>
+      Reset all
+    </button>
+  </div>
   <div class="checklist" id="checklist"></div>
-
-  <button class="action-btn" id="reset-btn" onclick="resetCheck()">
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M23 4v6h-6"/><path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"/></svg>
-    Start new check
-  </button>
 
   <button class="settings-btn" id="settings-btn" onclick="toggleSettings()">
     <svg class="gear" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
@@ -388,9 +389,11 @@
     updateHero();
 
     // If this flip just completed the whole checklist, bring the "Ready to tow"
-    // hero into view so the user can see every check is secure.
+    // hero into view so the user can see every check is secure. Otherwise, if a
+    // check was just set, advance the list so the next item centers on screen.
     const allSet = items.length > 0 && items.every(it => state.includes(it.id));
     if (nowSet && allSet) scrollToTop(420);
+    else if (nowSet) scrollNextIntoView(360);
   }
 
   function updateNextMarker() {
@@ -458,6 +461,19 @@
       const main = document.querySelector('main');
       if (main && main.scrollTo) main.scrollTo({ top: 0, behavior });
       window.scrollTo({ top: 0, behavior });
+    };
+    if (reduce || !delay) run();
+    else setTimeout(run, delay);
+  }
+
+  // Center the next unchecked item (the one marked NEXT) in the scroll region,
+  // so the checklist advances as the user works down it.
+  function scrollNextIntoView(delay) {
+    const reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    const behavior = reduce ? 'auto' : 'smooth';
+    const run = function () {
+      const next = document.querySelector('#checklist .item.next');
+      if (next && next.scrollIntoView) next.scrollIntoView({ behavior, block: 'center' });
     };
     if (reduce || !delay) run();
     else setTimeout(run, delay);
