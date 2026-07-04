@@ -378,14 +378,19 @@
     saveCheckState(state);
 
     // Update the tapped element without a full re-render (keeps the flip smooth)
+    const nowSet = state.includes(id);
     const el = document.querySelector(`.item[data-id="${id}"]`);
     if (el) {
-      const nowSet = state.includes(id);
       el.classList.toggle('set', nowSet);
       el.setAttribute('aria-pressed', nowSet);
     }
     updateNextMarker();
     updateHero();
+
+    // If this flip just completed the whole checklist, bring the "Ready to tow"
+    // hero into view so the user can see every check is secure.
+    const allSet = items.length > 0 && items.every(it => state.includes(it.id));
+    if (nowSet && allSet) scrollToTop(420);
   }
 
   function updateNextMarker() {
@@ -440,8 +445,23 @@
   window.resetCheck = function() {
     saveCheckState([]);
     render();
-    window.scrollTo({ top: 0, behavior: 'smooth' });
+    scrollToTop(0);
   };
+
+  // Scroll the app back to the top. The scroll region is <main>, so scroll that
+  // (and the window, as a fallback). Waits `delay` ms first so a completing tab
+  // can finish its flip, and jumps instantly when reduced motion is preferred.
+  function scrollToTop(delay) {
+    const reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    const behavior = reduce ? 'auto' : 'smooth';
+    const run = function () {
+      const main = document.querySelector('main');
+      if (main && main.scrollTo) main.scrollTo({ top: 0, behavior });
+      window.scrollTo({ top: 0, behavior });
+    };
+    if (reduce || !delay) run();
+    else setTimeout(run, delay);
+  }
 
   // ── Settings: editable checklist ────────────────────────────────────────
   window.toggleSettings = function() {

@@ -1,4 +1,4 @@
-const CACHE = 'towmate-v1.0.0';
+const CACHE = 'towmate-v1.0.1';
 const ASSETS = [
   './index.html',
   './manifest.json',
