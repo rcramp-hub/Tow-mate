@@ -45,12 +45,35 @@
   main { flex: 1; padding: 20px 20px 10px; display: flex; flex-direction: column; gap: 14px; overflow-y: auto; }
 
   /* ── Readiness hero ───────────────────────────────────────────────── */
-  .hero { background: var(--surface); border: 1px solid var(--border); border-radius: 20px; padding: 24px 20px 20px; text-align: center; position: relative; overflow: hidden; transition: border-color 0.4s; }
+  .hero { background: var(--surface); border: 1px solid var(--border); border-radius: 20px; padding: 24px 20px 20px; text-align: center; position: relative; overflow: hidden; transition: border-color 0.4s, padding 0.25s ease; }
   .hero::before { content: ''; position: absolute; bottom: -40px; left: 50%; transform: translateX(-50%); width: 220px; height: 80px; border-radius: 50%; filter: blur(50px); opacity: 0.14; pointer-events: none; background: var(--warn); transition: background 0.5s, opacity 0.5s; }
   .hero.ready { border-color: var(--accent-mid); }
   .hero.ready::before { background: var(--accent); opacity: 0.2; }
+
+  /* Pinned: stick the summary to the top of the scroll area */
+  .hero.pinned { position: -webkit-sticky; position: sticky; top: 0; z-index: 20; }
+  .hero.pinned.stuck { padding-top: 14px; padding-bottom: 14px; box-shadow: 0 -22px 0 var(--bg), 0 12px 22px -10px rgba(0,0,0,0.6); }
+  .hero.pinned.stuck .hero-num { font-size: 40px; }
+  .hero.pinned.stuck .hero-num .slash, .hero.pinned.stuck .hero-num .total { font-size: 28px; }
+  .hero.pinned.stuck .hero-sub { display: none; }
+  .hero.pinned.stuck .gauge-outer { margin: 12px 0 4px; height: 8px; }
+  .hero.pinned.stuck .gauge-labels { display: none; }
+  #hero-sentinel { height: 1px; margin-bottom: -1px; pointer-events: none; }
+
+  .pin-btn {
+    position: absolute; top: 12px; right: 12px; z-index: 3;
+    -webkit-appearance: none; width: 30px; height: 30px; border-radius: 8px;
+    background: var(--surface2); border: 1px solid var(--border); color: var(--muted);
+    cursor: pointer; display: flex; align-items: center; justify-content: center;
+    transition: color 0.2s, border-color 0.2s, background 0.2s;
+  }
+  .pin-btn:active { border-color: var(--accent-mid); }
+  .pin-btn.active { color: var(--accent); border-color: var(--accent-mid); background: var(--accent-dim); }
+  .pin-btn svg { width: 15px; height: 15px; transition: transform 0.2s; }
+  .pin-btn:not(.active) svg { transform: rotate(35deg); }
+
   .hero-label { font-size: 11px; letter-spacing: 0.12em; text-transform: uppercase; color: var(--muted); margin-bottom: 6px; }
-  .hero-num { font-family: 'Space Mono', monospace; font-size: 66px; font-weight: 700; color: var(--warn); line-height: 1; transition: color 0.4s; }
+  .hero-num { font-family: 'Space Mono', monospace; font-size: 66px; font-weight: 700; color: var(--warn); line-height: 1; transition: color 0.4s, font-size 0.25s ease; }
   .hero.ready .hero-num { color: var(--accent); }
   .hero-num .slash { color: var(--muted); font-size: 44px; }
   .hero-num .total { color: var(--muted); font-size: 44px; }
@@ -223,8 +246,12 @@
 </header>
 
 <main>
+  <div id="hero-sentinel" aria-hidden="true"></div>
   <!-- Readiness hero -->
   <div class="hero" id="hero">
+    <button class="pin-btn" id="pin-btn" onclick="togglePin()" title="Pin summary to top" aria-label="Pin summary to top" aria-pressed="false">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 17v5"/><path d="M9 10.76a2 2 0 0 1-1.11 1.79l-1.78.9A2 2 0 0 0 5 15.24V16a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1v-.76a2 2 0 0 0-1.11-1.79l-1.78-.9A2 2 0 0 1 15 10.76V7a1 1 0 0 1 1-1 2 2 0 0 0 0-4H8a2 2 0 0 0 0 4 1 1 0 0 1 1 1z"/></svg>
+    </button>
     <div class="hero-label" id="hero-label">Pre-departure checklist</div>
     <div class="hero-num" id="hero-num">0<span class="slash">/</span><span class="total">8</span></div>
     <div class="hero-status" id="hero-status">Not ready</div>
@@ -652,6 +679,38 @@
     render();
   }
 
+  // ── Pin summary to top ───────────────────────────────────────────────────
+  function isPinned() { return localStorage.getItem('heroPinned') === '1'; }
+
+  function applyPinned() {
+    const hero = document.getElementById('hero');
+    const btn = document.getElementById('pin-btn');
+    const on = isPinned();
+    hero.classList.toggle('pinned', on);
+    btn.classList.toggle('active', on);
+    btn.setAttribute('aria-pressed', on ? 'true' : 'false');
+    btn.title = on ? 'Unpin summary' : 'Pin summary to top';
+    btn.setAttribute('aria-label', btn.title);
+    if (!on) hero.classList.remove('stuck');
+  }
+
+  window.togglePin = function() {
+    localStorage.setItem('heroPinned', isPinned() ? '0' : '1');
+    applyPinned();
+  };
+
+  // Detect when the pinned summary has scrolled to the top edge so it can condense.
+  function setupStickyObserver() {
+    const sentinel = document.getElementById('hero-sentinel');
+    const hero = document.getElementById('hero');
+    const rootEl = document.querySelector('main');
+    if (!sentinel || !('IntersectionObserver' in window)) return;
+    const obs = new IntersectionObserver(function(entries) {
+      entries.forEach(function(e) { hero.classList.toggle('stuck', !e.isIntersecting); });
+    }, { root: rootEl, threshold: 0 });
+    obs.observe(sentinel);
+  }
+
   // ── Helpers ─────────────────────────────────────────────────────────────
   function esc(s) { return String(s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
   function timeNow() {
@@ -659,6 +718,9 @@
   }
 
   // ── Init ────────────────────────────────────────────────────────────────
+  applyPinned();
+  setupStickyObserver();
+
   const profiles = getProfiles();
   if (profiles.length === 0) {
     document.getElementById('welcome-overlay').style.display = 'flex';
