@@ -1,0 +1,646 @@
+<!DOCTYPE html>
+<!-- Tow Mate — Pre-Departure Towing Checklist -->
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover"/>
+<meta name="apple-mobile-web-app-capable" content="yes"/>
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent"/>
+<meta name="apple-mobile-web-app-title" content="Tow Mate"/>
+<meta name="theme-color" content="#0f1117"/>
+<link rel="manifest" href="manifest.json"/>
+<link rel="icon" type="image/svg+xml" href="icon.svg"/>
+<link rel="apple-touch-icon" href="apple-touch-icon.png"/>
+<title>Tow Mate</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=DM+Sans:wght@300;400;500;600&display=swap');
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  :root {
+    --bg: #0f1117; --surface: #181c26; --surface2: #1e2330;
+    --accent: #2dff8f; --accent-dim: rgba(45,255,143,0.12); --accent-mid: rgba(45,255,143,0.35);
+    --warn: #ffb830; --warn-dim: rgba(255,184,48,0.12); --warn-mid: rgba(255,184,48,0.35);
+    --danger: #ff4d4d;
+    --text: #f0f2f8; --muted: #7a8099; --border: rgba(255,255,255,0.07);
+    --safe-top: env(safe-area-inset-top, 0px); --safe-bottom: env(safe-area-inset-bottom, 0px);
+  }
+  html, body { background: var(--bg); color: var(--text); font-family: 'DM Sans', sans-serif; -webkit-tap-highlight-color: transparent; }
+  body { display: flex; flex-direction: column; min-height: 100dvh; padding-top: var(--safe-top); padding-bottom: var(--safe-bottom); }
+
+  header { padding: 20px 24px 12px; display: flex; align-items: center; gap: 10px; border-bottom: 1px solid var(--border); }
+  .header-icon { width: 32px; height: 32px; background: var(--accent-dim); border-radius: 8px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+  .header-icon svg { width: 18px; height: 18px; }
+  header h1 { font-family: 'Space Mono', monospace; font-size: 15px; font-weight: 700; letter-spacing: 0.08em; color: var(--accent); text-transform: uppercase; flex: 1; }
+
+  .profile-badge {
+    -webkit-appearance: none; background: var(--surface); border: 1px solid var(--border);
+    border-radius: 8px; color: var(--muted); font-family: 'DM Sans', sans-serif;
+    font-size: 11px; font-weight: 500; padding: 5px 10px; cursor: pointer;
+    display: flex; align-items: center; gap: 5px; white-space: nowrap;
+    transition: border-color 0.2s, color 0.2s; max-width: 150px; overflow: hidden;
+  }
+  .profile-badge:active { border-color: var(--accent-mid); color: var(--accent); }
+  .profile-badge svg { width: 12px; height: 12px; flex-shrink: 0; }
+  .profile-badge span { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+
+  main { flex: 1; padding: 20px 20px 10px; display: flex; flex-direction: column; gap: 14px; overflow-y: auto; }
+
+  /* ── Readiness hero ───────────────────────────────────────────────── */
+  .hero { background: var(--surface); border: 1px solid var(--border); border-radius: 20px; padding: 24px 20px 20px; text-align: center; position: relative; overflow: hidden; transition: border-color 0.4s; }
+  .hero::before { content: ''; position: absolute; bottom: -40px; left: 50%; transform: translateX(-50%); width: 220px; height: 80px; border-radius: 50%; filter: blur(50px); opacity: 0.14; pointer-events: none; background: var(--warn); transition: background 0.5s, opacity 0.5s; }
+  .hero.ready { border-color: var(--accent-mid); }
+  .hero.ready::before { background: var(--accent); opacity: 0.2; }
+  .hero-label { font-size: 11px; letter-spacing: 0.12em; text-transform: uppercase; color: var(--muted); margin-bottom: 6px; }
+  .hero-num { font-family: 'Space Mono', monospace; font-size: 66px; font-weight: 700; color: var(--warn); line-height: 1; transition: color 0.4s; }
+  .hero.ready .hero-num { color: var(--accent); }
+  .hero-num .slash { color: var(--muted); font-size: 44px; }
+  .hero-num .total { color: var(--muted); font-size: 44px; }
+  .hero-status { font-family: 'Space Mono', monospace; font-size: 15px; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; color: var(--warn); margin-top: 8px; transition: color 0.4s; display: flex; align-items: center; justify-content: center; gap: 7px; }
+  .hero.ready .hero-status { color: var(--accent); }
+  .hero-status svg { width: 16px; height: 16px; }
+  .hero-sub { font-size: 11px; color: var(--muted); margin-top: 8px; letter-spacing: 0.03em; min-height: 15px; }
+  .gauge-outer { background: var(--surface2); border-radius: 6px; height: 10px; margin: 18px 0 6px; overflow: hidden; }
+  .gauge-inner { height: 100%; border-radius: 6px; background: var(--warn); transition: width 0.45s cubic-bezier(.4,0,.2,1), background 0.4s; }
+  .hero.ready .gauge-inner { background: var(--accent); }
+  .gauge-labels { display: flex; justify-content: space-between; font-size: 10px; color: var(--muted); font-family: 'Space Mono', monospace; }
+
+  /* ── Checklist ────────────────────────────────────────────────────── */
+  .list-eyebrow { font-size: 11px; text-transform: uppercase; letter-spacing: 0.1em; color: var(--muted); margin: 4px 2px -2px; }
+  .checklist { display: flex; flex-direction: column; gap: 10px; }
+
+  .item {
+    -webkit-appearance: none; text-align: left; width: 100%;
+    display: flex; align-items: center; gap: 14px;
+    background: var(--surface); border: 1px solid var(--border); border-radius: 16px;
+    padding: 14px 14px 14px 16px; cursor: pointer;
+    transition: border-color 0.3s, background 0.3s;
+    position: relative;
+  }
+  .item.set { border-color: var(--accent-mid); background: var(--accent-dim); }
+  .item.next { border-color: var(--warn-mid); }
+  .item.next::after {
+    content: 'NEXT'; position: absolute; top: -8px; left: 14px;
+    font-family: 'Space Mono', monospace; font-size: 9px; font-weight: 700; letter-spacing: 0.12em;
+    color: var(--warn); background: var(--bg); padding: 0 6px; border-radius: 4px;
+    animation: pulse 1.6s ease-in-out infinite;
+  }
+  @keyframes pulse { 0%,100% { opacity: 0.45; } 50% { opacity: 1; } }
+
+  .item-num { font-family: 'Space Mono', monospace; font-size: 12px; font-weight: 700; color: var(--muted); width: 20px; flex-shrink: 0; text-align: center; transition: color 0.3s; }
+  .item.set .item-num { color: var(--accent); }
+  .item-body { flex: 1; min-width: 0; }
+  .item-name { font-size: 15px; font-weight: 500; color: var(--text); line-height: 1.25; }
+  .item.set .item-name { color: var(--accent); }
+  .item-hint { font-size: 11.5px; color: var(--muted); line-height: 1.4; margin-top: 3px; }
+
+  /* The signature flip tab */
+  .tab-flip { width: 62px; height: 46px; flex-shrink: 0; perspective: 700px; }
+  .tab-inner { position: relative; width: 100%; height: 100%; transform-style: preserve-3d; transition: transform 0.5s cubic-bezier(.34,1.4,.5,1); }
+  .item.set .tab-inner { transform: rotateX(180deg); }
+  .tab-face {
+    position: absolute; inset: 0; backface-visibility: hidden; -webkit-backface-visibility: hidden;
+    border-radius: 10px; display: flex; flex-direction: column; align-items: center; justify-content: center;
+    font-family: 'Space Mono', monospace; font-size: 11px; font-weight: 700; letter-spacing: 0.06em;
+    border: 1px solid; gap: 2px;
+  }
+  .tab-front { background: var(--warn-dim); border-color: var(--warn-mid); color: var(--warn); }
+  .tab-back { background: var(--accent-dim); border-color: var(--accent-mid); color: var(--accent); transform: rotateX(180deg); }
+  .tab-back svg { width: 15px; height: 15px; }
+
+  @media (prefers-reduced-motion: reduce) {
+    .tab-inner { transition: none; }
+    .item.next::after { animation: none; opacity: 1; }
+  }
+
+  /* ── Actions ──────────────────────────────────────────────────────── */
+  .complete-banner {
+    display: none; align-items: center; gap: 10px;
+    background: var(--accent-dim); border: 1px solid var(--accent-mid); border-radius: 14px;
+    padding: 14px 16px; font-size: 13px; line-height: 1.4; color: var(--accent);
+  }
+  .complete-banner.show { display: flex; }
+  .complete-banner svg { width: 20px; height: 20px; flex-shrink: 0; }
+
+  .action-btn {
+    -webkit-appearance: none; width: 100%; padding: 13px; border-radius: 12px;
+    font-family: 'DM Sans', sans-serif; font-size: 14px; font-weight: 500; cursor: pointer;
+    display: flex; align-items: center; justify-content: center; gap: 8px;
+    transition: background 0.2s, border-color 0.2s, color 0.2s;
+    background: transparent; border: 1px solid var(--border); color: var(--muted);
+  }
+  .action-btn:active { border-color: var(--accent-mid); color: var(--accent); }
+  .action-btn.primary { background: var(--accent-dim); border-color: var(--accent-mid); color: var(--accent); }
+  .action-btn.primary:active { background: rgba(45,255,143,0.22); }
+  .action-btn svg { width: 15px; height: 15px; flex-shrink: 0; }
+
+  .settings-btn { -webkit-appearance: none; width: 100%; margin: 2px 0 4px; padding: 12px; background: transparent; border: 1px solid var(--border); border-radius: 12px; color: var(--muted); font-family: 'DM Sans', sans-serif; font-size: 13px; font-weight: 500; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 7px; transition: border-color 0.2s, color 0.2s; }
+  .settings-btn:active, .settings-btn.open { border-color: var(--accent-mid); color: var(--accent); }
+  .settings-btn svg.gear { width: 15px; height: 15px; flex-shrink: 0; }
+  .settings-chevron { width: 15px; height: 15px; transition: transform 0.3s; }
+  .settings-btn.open .settings-chevron { transform: rotate(180deg); }
+
+  /* ── Settings: editable checklist ─────────────────────────────────── */
+  .settings-panel { display: none; flex-direction: column; gap: 16px; padding: 0 20px 32px; }
+  .settings-panel.open { display: flex; }
+  .settings-section { background: var(--surface); border: 1px solid var(--border); border-radius: 16px; overflow: hidden; }
+  .settings-section-title { font-size: 11px; text-transform: uppercase; letter-spacing: 0.1em; color: var(--muted); padding: 14px 16px 10px; border-bottom: 1px solid var(--border); }
+  .settings-note { font-size: 11px; color: var(--muted); line-height: 1.6; padding: 10px 16px 14px; }
+
+  .edit-list { display: flex; flex-direction: column; }
+  .edit-item { display: flex; align-items: center; gap: 10px; padding: 10px 14px; border-bottom: 1px solid var(--border); }
+  .edit-item:last-child { border-bottom: none; }
+  .edit-inputs { flex: 1; display: flex; flex-direction: column; gap: 5px; min-width: 0; }
+  .edit-name-input { background: var(--surface2); border: 1px solid var(--border); border-radius: 8px; color: var(--text); font-family: 'DM Sans', sans-serif; font-size: 14px; font-weight: 500; padding: 8px 10px; outline: none; }
+  .edit-name-input:focus { border-color: var(--accent-mid); }
+  .edit-hint-input { background: transparent; border: none; border-bottom: 1px solid var(--border); color: var(--muted); font-family: 'DM Sans', sans-serif; font-size: 12px; padding: 3px 2px; outline: none; }
+  .edit-hint-input:focus { border-bottom-color: var(--accent-mid); color: var(--text); }
+  .edit-hint-input::placeholder { color: var(--muted); opacity: 0.6; }
+  .edit-controls { display: flex; flex-direction: column; gap: 4px; flex-shrink: 0; }
+  .mini-btn { -webkit-appearance: none; width: 30px; height: 26px; background: var(--surface2); border: 1px solid var(--border); border-radius: 7px; color: var(--muted); cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 13px; transition: color 0.2s, border-color 0.2s; }
+  .mini-btn:active { border-color: var(--accent-mid); color: var(--accent); }
+  .mini-btn.del:active { border-color: var(--danger); color: var(--danger); }
+  .mini-btn svg { width: 13px; height: 13px; }
+  .mini-btn:disabled { opacity: 0.25; }
+
+  .add-item-row { display: flex; gap: 8px; padding: 12px 14px; }
+  .add-item-input { flex: 1; background: var(--surface2); border: 1px solid var(--border); border-radius: 10px; color: var(--text); font-family: 'DM Sans', sans-serif; font-size: 14px; padding: 10px 14px; outline: none; }
+  .add-item-input:focus { border-color: var(--accent-mid); }
+  .add-item-input::placeholder { color: var(--muted); }
+  .add-item-btn { -webkit-appearance: none; background: var(--accent-dim); border: 1px solid var(--accent-mid); border-radius: 10px; color: var(--accent); font-family: 'DM Sans', sans-serif; font-size: 13px; font-weight: 600; padding: 10px 16px; cursor: pointer; white-space: nowrap; }
+  .add-item-btn:active { background: rgba(45,255,143,0.22); }
+
+  .s-btn { -webkit-appearance: none; width: 100%; padding: 11px 8px; border-radius: 10px; border: 1px solid var(--border); background: var(--surface2); color: var(--text); font-family: 'DM Sans', sans-serif; font-size: 13px; font-weight: 500; cursor: pointer; transition: background 0.2s, border-color 0.2s, color 0.2s; }
+  .s-btn:active { border-color: var(--warn-mid); color: var(--warn); }
+
+  /* ── Modals (bottom sheet) ────────────────────────────────────────── */
+  .modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.7); display: flex; align-items: flex-end; justify-content: center; z-index: 100; padding: 20px; opacity: 0; pointer-events: none; transition: opacity 0.25s; overflow-y: auto; -webkit-overflow-scrolling: touch; }
+  .modal-overlay.show { opacity: 1; pointer-events: auto; }
+  .modal { background: var(--surface); border: 1px solid var(--border); border-radius: 20px; padding: 24px 20px 20px; width: 100%; max-width: 420px; max-height: calc(100dvh - 40px); overflow-y: auto; display: flex; flex-direction: column; gap: 16px; transform: translateY(20px); transition: transform 0.25s; }
+  .modal-overlay.show .modal { transform: translateY(0); }
+  .modal-title { font-family: 'Space Mono', monospace; font-size: 14px; font-weight: 700; color: var(--accent); text-transform: uppercase; letter-spacing: 0.06em; }
+  .modal-body { font-size: 13px; color: var(--muted); line-height: 1.6; }
+
+  .profile-list { display: flex; flex-direction: column; gap: 8px; }
+  .profile-item { display: flex; align-items: center; gap: 12px; background: var(--surface2); border: 1px solid var(--border); border-radius: 12px; padding: 12px 14px; cursor: pointer; transition: border-color 0.2s; }
+  .profile-item:active { border-color: var(--accent-mid); }
+  .profile-item.active { border-color: var(--accent-mid); background: var(--accent-dim); }
+  .profile-item-name { flex: 1; font-size: 14px; font-weight: 500; color: var(--text); }
+  .profile-item.active .profile-item-name { color: var(--accent); }
+  .profile-item-active { font-size: 10px; color: var(--accent); text-transform: uppercase; letter-spacing: 0.08em; }
+  .profile-item-btn { -webkit-appearance: none; background: transparent; border: none; color: var(--muted); cursor: pointer; font-size: 13px; padding: 4px 6px; border-radius: 4px; transition: color 0.2s; }
+  .profile-item-btn:active { color: var(--accent); }
+  .profile-item-btn.del:active { color: var(--danger); }
+
+  .profile-add-row { display: flex; gap: 8px; }
+  .profile-add-input { flex: 1; background: var(--surface2); border: 1px solid var(--border); border-radius: 10px; color: var(--text); font-family: 'DM Sans', sans-serif; font-size: 14px; padding: 10px 14px; outline: none; }
+  .profile-add-input:focus { border-color: var(--accent-mid); }
+  .profile-add-input::placeholder { color: var(--muted); }
+  .profile-add-btn { -webkit-appearance: none; background: var(--accent-dim); border: 1px solid var(--accent-mid); border-radius: 10px; color: var(--accent); font-family: 'DM Sans', sans-serif; font-size: 13px; font-weight: 600; padding: 10px 16px; cursor: pointer; white-space: nowrap; }
+  .profile-add-btn:active { background: rgba(45,255,143,0.22); }
+
+  .modal-close { -webkit-appearance: none; width: 100%; padding: 11px; background: var(--surface2); border: 1px solid var(--border); border-radius: 10px; color: var(--muted); font-family: 'DM Sans', sans-serif; font-size: 13px; font-weight: 500; cursor: pointer; }
+  .modal-close:active { border-color: var(--accent-mid); color: var(--text); }
+
+  .welcome-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.85); display: flex; align-items: center; justify-content: center; z-index: 200; padding: 24px; }
+  .welcome-card { background: var(--surface); border: 1px solid var(--border); border-radius: 20px; padding: 28px 24px; width: 100%; max-width: 380px; text-align: center; }
+  .welcome-card h2 { font-family: 'Space Mono', monospace; font-size: 16px; color: var(--accent); margin-bottom: 14px; }
+  .welcome-card p { font-size: 13px; color: var(--muted); line-height: 1.7; margin-bottom: 18px; }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="header-icon">
+    <svg viewBox="0 0 24 24" fill="none" stroke="#2dff8f" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+      <rect x="1" y="7" width="14" height="9" rx="1"/><circle cx="6" cy="18" r="2"/>
+      <path d="M15 11h4l3 3v2h-3"/><path d="M15 16h1"/>
+    </svg>
+  </div>
+  <h1>Tow Mate</h1>
+  <button class="profile-badge" id="profile-badge" onclick="openProfileModal()">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="1" y="6" width="13" height="10" rx="1"/><path d="M14 10h4l3 3v1h-3"/></svg>
+    <span id="profile-badge-name">—</span>
+  </button>
+</header>
+
+<main>
+  <!-- Readiness hero -->
+  <div class="hero" id="hero">
+    <div class="hero-label" id="hero-label">Pre-departure checklist</div>
+    <div class="hero-num" id="hero-num">0<span class="slash">/</span><span class="total">8</span></div>
+    <div class="hero-status" id="hero-status">Not ready</div>
+    <div class="hero-sub" id="hero-sub">Flip each tab to confirm it's secure</div>
+    <div class="gauge-outer"><div class="gauge-inner" id="gauge" style="width:0%"></div></div>
+    <div class="gauge-labels"><span>SECURE</span><span id="gauge-count">0 / 8</span></div>
+  </div>
+
+  <div class="complete-banner" id="complete-banner">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
+    <span id="complete-text">All checks secure. You're cleared to tow.</span>
+  </div>
+
+  <div class="list-eyebrow">Checklist</div>
+  <div class="checklist" id="checklist"></div>
+
+  <button class="action-btn" id="reset-btn" onclick="resetCheck()">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M23 4v6h-6"/><path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"/></svg>
+    Start new check
+  </button>
+
+  <button class="settings-btn" id="settings-btn" onclick="toggleSettings()">
+    <svg class="gear" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
+    Edit checklist for this rig
+    <svg class="settings-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
+  </button>
+</main>
+
+<!-- Settings panel: editable checklist -->
+<div class="settings-panel" id="settings-panel">
+  <div class="settings-section">
+    <div class="settings-section-title">Checklist items</div>
+    <div class="edit-list" id="edit-list"></div>
+    <div class="add-item-row">
+      <input class="add-item-input" id="add-item-input" type="text" placeholder="New check (e.g. Tyre pressures)" maxlength="40" onkeydown="if(event.key==='Enter')addItem()">
+      <button class="add-item-btn" onclick="addItem()">Add</button>
+    </div>
+    <div class="settings-note">Reorder with the arrows, edit the label and its confirmation prompt inline, or remove checks that don't apply to this rig. Every rig keeps its own list.</div>
+    <div style="padding:0 14px 14px;">
+      <button class="s-btn" onclick="restoreDefaults()">Restore default checklist</button>
+    </div>
+  </div>
+</div>
+
+<!-- Rig profile modal -->
+<div class="modal-overlay" id="profile-modal">
+  <div class="modal">
+    <div class="modal-title">Your rigs</div>
+    <div class="modal-body">Switch between trailers or add a new one. Each rig keeps its own checklist and departure history.</div>
+    <div class="profile-list" id="profile-list"></div>
+    <div class="profile-add-row">
+      <input class="profile-add-input" id="profile-add-input" type="text" placeholder="New rig name…" maxlength="30" onkeydown="if(event.key==='Enter')addProfile()">
+      <button class="profile-add-btn" onclick="addProfile()">Add</button>
+    </div>
+    <button class="modal-close" onclick="closeProfileModal()">Close</button>
+  </div>
+</div>
+
+<!-- First-run welcome -->
+<div class="welcome-overlay" id="welcome-overlay" style="display:none">
+  <div class="welcome-card">
+    <h2>Welcome to Tow Mate</h2>
+    <p>Name your rig to get started. Tow Mate walks you through a pre-departure safety check — flip each tab as you confirm it, like a pilot before take-off.</p>
+    <div class="profile-add-row" style="margin-bottom:10px;">
+      <input class="profile-add-input" id="welcome-name-input" type="text" placeholder="e.g. Jayco Caravan" maxlength="30" onkeydown="if(event.key==='Enter')createFirstProfile()">
+    </div>
+    <button class="profile-add-btn" style="width:100%;" onclick="createFirstProfile()">Get started</button>
+  </div>
+</div>
+
+<script>
+(function(){
+  'use strict';
+
+  // ── Default checklist ─────────────────────────────────────────────────
+  const DEFAULT_ITEMS = [
+    { id: 'chain1',  name: 'Safety Chain 1',           hint: 'Crossed under the coupling and shackled to the tow vehicle.' },
+    { id: 'chain2',  name: 'Safety Chain 2',           hint: 'Crossed the opposite way and shackled — no slack dragging.' },
+    { id: 'lanyard', name: 'Emergency E-Brake Lanyard',hint: 'Clipped to the tow vehicle, not to a safety chain.' },
+    { id: 'hitch',   name: 'Hitch Coupling',           hint: 'Seated on the ball, latch closed and locked.' },
+    { id: 'plug12',  name: '12 Pin Trailer Plug',      hint: 'Seated firm — lights and brakes responding.' },
+    { id: 'anderson',name: 'RED Anderson Plug',        hint: 'Connected square and fully seated.' },
+    { id: 'handbrake',name:'Caravan Handbrake',        hint: 'Released before moving off.' },
+    { id: 'esc',     name: 'Electronic Stability Control', hint: 'Armed and indicator confirmed.' }
+  ];
+
+  const ICON_CHECK = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>';
+
+  // ── Profiles (rigs) ────────────────────────────────────────────────────
+  function getProfiles() { try { return JSON.parse(localStorage.getItem('rigs') || '[]'); } catch(e) { return []; } }
+  function saveProfiles(p) { try { localStorage.setItem('rigs', JSON.stringify(p)); } catch(e) {} }
+  function getActiveProfileId() { return localStorage.getItem('activeRig') || ''; }
+  function setActiveProfileId(id) { localStorage.setItem('activeRig', id); }
+  function getActiveProfile() { const id = getActiveProfileId(); return getProfiles().find(p => p.id === id) || null; }
+
+  function pKey(k) { return 'r_' + getActiveProfileId() + '_' + k; }
+  function pGet(k) { try { return localStorage.getItem(pKey(k)); } catch(e) { return null; } }
+  function pSet(k, v) { try { localStorage.setItem(pKey(k), v); } catch(e) {} }
+  function pRemove(k) { try { localStorage.removeItem(pKey(k)); } catch(e) {} }
+
+  // ── Data model per rig ──────────────────────────────────────────────────
+  function getItems() {
+    try { const raw = pGet('items'); if (raw) return JSON.parse(raw); } catch(e) {}
+    return DEFAULT_ITEMS.map(i => ({ ...i }));
+  }
+  function saveItems(items) { pSet('items', JSON.stringify(items)); }
+
+  function getCheckState() { try { return JSON.parse(pGet('checkState') || '[]'); } catch(e) { return []; } }
+  function saveCheckState(arr) { pSet('checkState', JSON.stringify(arr)); }
+
+  // ── Render checklist ────────────────────────────────────────────────────
+  function render() {
+    const items = getItems();
+    const state = getCheckState();
+    const list = document.getElementById('checklist');
+    const firstUnsetIdx = items.findIndex(it => !state.includes(it.id));
+
+    list.innerHTML = items.map((it, idx) => {
+      const isSet = state.includes(it.id);
+      const isNext = !isSet && idx === firstUnsetIdx;
+      return `
+      <button class="item ${isSet ? 'set' : ''} ${isNext ? 'next' : ''}" data-id="${it.id}" aria-pressed="${isSet}">
+        <div class="item-num">${String(idx + 1).padStart(2,'0')}</div>
+        <div class="item-body">
+          <div class="item-name">${esc(it.name)}</div>
+          ${it.hint ? `<div class="item-hint">${esc(it.hint)}</div>` : ''}
+        </div>
+        <div class="tab-flip">
+          <div class="tab-inner">
+            <div class="tab-face tab-front">CHECK</div>
+            <div class="tab-face tab-back">${ICON_CHECK}SET</div>
+          </div>
+        </div>
+      </button>`;
+    }).join('');
+
+    list.querySelectorAll('.item').forEach(el => {
+      el.addEventListener('click', () => toggleItem(el.dataset.id));
+    });
+
+    updateHero();
+  }
+
+  function toggleItem(id) {
+    let state = getCheckState();
+    const items = getItems();
+    if (!items.find(i => i.id === id)) return;
+
+    if (state.includes(id)) state = state.filter(x => x !== id);
+    else state.push(id);
+    saveCheckState(state);
+
+    // Update the tapped element without a full re-render (keeps the flip smooth)
+    const el = document.querySelector(`.item[data-id="${id}"]`);
+    if (el) {
+      const nowSet = state.includes(id);
+      el.classList.toggle('set', nowSet);
+      el.setAttribute('aria-pressed', nowSet);
+    }
+    updateNextMarker();
+    updateHero();
+  }
+
+  function updateNextMarker() {
+    const items = getItems();
+    const state = getCheckState();
+    const firstUnsetIdx = items.findIndex(it => !state.includes(it.id));
+    document.querySelectorAll('.item').forEach((el, idx) => {
+      el.classList.toggle('next', idx === firstUnsetIdx);
+    });
+  }
+
+  function updateHero() {
+    const items = getItems();
+    const state = getCheckState();
+    const total = items.length;
+    const done = items.filter(it => state.includes(it.id)).length;
+    const ready = total > 0 && done === total;
+    const pct = total ? Math.round(done / total * 100) : 0;
+
+    const hero = document.getElementById('hero');
+    hero.classList.toggle('ready', ready);
+
+    document.getElementById('hero-num').innerHTML =
+      ready ? 'GO' : `${done}<span class="slash">/</span><span class="total">${total}</span>`;
+    document.getElementById('gauge').style.width = pct + '%';
+    document.getElementById('gauge-count').textContent = `${done} / ${total}`;
+
+    const statusEl = document.getElementById('hero-status');
+    const subEl = document.getElementById('hero-sub');
+    const label = document.getElementById('hero-label');
+
+    if (ready) {
+      label.textContent = 'Cleared for departure';
+      statusEl.innerHTML = ICON_CHECK + 'Ready to tow';
+      pSet('lastCompleted', new Date().toISOString());
+      subEl.textContent = 'Completed ' + timeNow();
+    } else {
+      label.textContent = 'Pre-departure checklist';
+      statusEl.textContent = 'Not ready';
+      const remaining = total - done;
+      subEl.textContent = total === 0
+        ? 'Add checks in the editor below'
+        : (done === 0 ? 'Flip each tab to confirm it\'s secure'
+                      : `${remaining} check${remaining === 1 ? '' : 's'} still to secure`);
+    }
+
+    document.getElementById('complete-banner').classList.toggle('show', ready);
+    const rb = document.getElementById('reset-btn');
+    rb.classList.toggle('primary', ready);
+  }
+
+  window.resetCheck = function() {
+    saveCheckState([]);
+    render();
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  };
+
+  // ── Settings: editable checklist ────────────────────────────────────────
+  window.toggleSettings = function() {
+    const panel = document.getElementById('settings-panel');
+    const btn = document.getElementById('settings-btn');
+    const open = panel.classList.toggle('open');
+    btn.classList.toggle('open', open);
+    if (open) { renderEditList(); panel.scrollIntoView({ behavior: 'smooth', block: 'start' }); }
+  };
+
+  function renderEditList() {
+    const items = getItems();
+    const list = document.getElementById('edit-list');
+    list.innerHTML = items.map((it, idx) => `
+      <div class="edit-item" data-id="${it.id}">
+        <div class="edit-controls">
+          <button class="mini-btn" title="Move up" ${idx === 0 ? 'disabled' : ''} onclick="moveItem('${it.id}',-1)">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="18 15 12 9 6 15"/></svg>
+          </button>
+          <button class="mini-btn" title="Move down" ${idx === items.length - 1 ? 'disabled' : ''} onclick="moveItem('${it.id}',1)">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
+          </button>
+        </div>
+        <div class="edit-inputs">
+          <input class="edit-name-input" value="${esc(it.name)}" maxlength="40" oninput="editItem('${it.id}','name',this.value)">
+          <input class="edit-hint-input" value="${esc(it.hint || '')}" maxlength="90" placeholder="Confirmation prompt (optional)" oninput="editItem('${it.id}','hint',this.value)">
+        </div>
+        <div class="edit-controls">
+          <button class="mini-btn del" title="Remove" onclick="removeItem('${it.id}')">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+          </button>
+        </div>
+      </div>`).join('');
+  }
+
+  window.editItem = function(id, field, value) {
+    const items = getItems();
+    const it = items.find(x => x.id === id);
+    if (it) { it[field] = value; saveItems(items); if (field === 'name' || field === 'hint') softRefresh(); }
+  };
+
+  window.moveItem = function(id, dir) {
+    const items = getItems();
+    const i = items.findIndex(x => x.id === id);
+    const j = i + dir;
+    if (i < 0 || j < 0 || j >= items.length) return;
+    [items[i], items[j]] = [items[j], items[i]];
+    saveItems(items);
+    renderEditList();
+    render();
+  };
+
+  window.removeItem = function(id) {
+    let items = getItems();
+    if (items.length <= 1) return;
+    items = items.filter(x => x.id !== id);
+    saveItems(items);
+    saveCheckState(getCheckState().filter(x => x !== id));
+    renderEditList();
+    render();
+  };
+
+  window.addItem = function() {
+    const input = document.getElementById('add-item-input');
+    const name = input.value.trim();
+    if (!name) { input.style.borderColor = 'var(--danger)'; setTimeout(() => input.style.borderColor = '', 1200); return; }
+    const items = getItems();
+    items.push({ id: 'i_' + Date.now(), name, hint: '' });
+    saveItems(items);
+    input.value = '';
+    renderEditList();
+    render();
+  };
+
+  window.restoreDefaults = function() {
+    if (!confirm('Restore the default 8-point checklist for this rig? Custom items will be removed and progress reset.')) return;
+    saveItems(DEFAULT_ITEMS.map(i => ({ ...i })));
+    saveCheckState([]);
+    renderEditList();
+    render();
+  };
+
+  // Update visible checklist labels while editing, without disturbing flip state
+  function softRefresh() {
+    const items = getItems();
+    document.querySelectorAll('#checklist .item').forEach(el => {
+      const it = items.find(x => x.id === el.dataset.id);
+      if (!it) return;
+      const nameEl = el.querySelector('.item-name');
+      const hintEl = el.querySelector('.item-hint');
+      if (nameEl) nameEl.textContent = it.name;
+      if (hintEl) hintEl.textContent = it.hint || '';
+    });
+  }
+
+  // ── Rig profile UI ──────────────────────────────────────────────────────
+  function updateProfileBadge() {
+    const p = getActiveProfile();
+    document.getElementById('profile-badge-name').textContent = p ? p.name : '—';
+  }
+  window.openProfileModal = function() { renderProfileList(); document.getElementById('profile-modal').classList.add('show'); };
+  window.closeProfileModal = function() { document.getElementById('profile-modal').classList.remove('show'); };
+
+  function renderProfileList() {
+    const list = document.getElementById('profile-list');
+    const profiles = getProfiles();
+    const activeId = getActiveProfileId();
+    list.innerHTML = profiles.map(p => `
+      <div class="profile-item ${p.id === activeId ? 'active' : ''}" onclick="switchProfile('${p.id}')">
+        <div class="profile-item-name">${esc(p.name)}</div>
+        ${p.id === activeId ? '<div class="profile-item-active">Active</div>' : ''}
+        <button class="profile-item-btn" title="Rename" onclick="event.stopPropagation(); renameProfile('${p.id}')">&#9998;</button>
+        ${profiles.length > 1 ? `<button class="profile-item-btn del" title="Delete" onclick="event.stopPropagation(); deleteProfile('${p.id}')">&#10005;</button>` : ''}
+      </div>`).join('');
+  }
+
+  window.switchProfile = function(id) { setActiveProfileId(id); closeProfileModal(); reloadRig(); };
+
+  window.addProfile = function() {
+    const input = document.getElementById('profile-add-input');
+    const name = input.value.trim();
+    if (!name) { input.style.borderColor = 'var(--danger)'; setTimeout(() => input.style.borderColor = '', 1200); return; }
+    const profiles = getProfiles();
+    const id = 'rig_' + Date.now();
+    profiles.push({ id, name, createdAt: new Date().toISOString() });
+    saveProfiles(profiles);
+    setActiveProfileId(id);
+    input.value = '';
+    closeProfileModal();
+    reloadRig();
+  };
+
+  window.renameProfile = function(id) {
+    const profiles = getProfiles();
+    const p = profiles.find(x => x.id === id);
+    if (!p) return;
+    const name = prompt('Rename rig:', p.name);
+    if (!name || !name.trim()) return;
+    p.name = name.trim();
+    saveProfiles(profiles);
+    renderProfileList();
+    updateProfileBadge();
+  };
+
+  window.deleteProfile = function(id) {
+    const profiles = getProfiles();
+    const p = profiles.find(x => x.id === id);
+    if (!p) return;
+    if (!confirm('Delete rig "' + p.name + '"? Its checklist and history will be removed.')) return;
+    ['items','checkState','lastCompleted'].forEach(k => { try { localStorage.removeItem('r_' + id + '_' + k); } catch(e) {} });
+    const remaining = profiles.filter(x => x.id !== id);
+    saveProfiles(remaining);
+    if (getActiveProfileId() === id && remaining.length) setActiveProfileId(remaining[0].id);
+    renderProfileList();
+    reloadRig();
+  };
+
+  window.createFirstProfile = function() {
+    const input = document.getElementById('welcome-name-input');
+    const name = input.value.trim() || 'My Rig';
+    const id = 'rig_' + Date.now();
+    saveProfiles([{ id, name, createdAt: new Date().toISOString() }]);
+    setActiveProfileId(id);
+    document.getElementById('welcome-overlay').style.display = 'none';
+    reloadRig();
+  };
+
+  function reloadRig() {
+    updateProfileBadge();
+    const panel = document.getElementById('settings-panel');
+    if (panel.classList.contains('open')) renderEditList();
+    render();
+  }
+
+  // ── Helpers ─────────────────────────────────────────────────────────────
+  function esc(s) { return String(s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
+  function timeNow() {
+    return new Date().toLocaleTimeString([], { hour: 'numeric', minute: '2-digit' });
+  }
+
+  // ── Init ────────────────────────────────────────────────────────────────
+  const profiles = getProfiles();
+  if (profiles.length === 0) {
+    document.getElementById('welcome-overlay').style.display = 'flex';
+  } else {
+    if (!getActiveProfile()) setActiveProfileId(profiles[0].id);
+    updateProfileBadge();
+    render();
+  }
+})();
+</script>
+
+<script>
+  // Register the service worker for offline use (network-first caching).
+  if ('serviceWorker' in navigator) {
+    window.addEventListener('load', function () {
+      navigator.serviceWorker.register('sw.js').catch(function () {});
+    });
+  }
+</script>
+</body>
+</html>

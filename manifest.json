@@ -1,0 +1,17 @@
+{
+  "name": "Tow Mate",
+  "short_name": "Tow Mate",
+  "description": "Pilot-style pre-departure safety checklist for towing.",
+  "start_url": "./index.html",
+  "scope": "./",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#0f1117",
+  "theme_color": "#0f1117",
+  "icons": [
+    { "src": "./icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any" },
+    { "src": "./icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any" },
+    { "src": "./icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" },
+    { "src": "./icon.svg", "type": "image/svg+xml", "sizes": "any" }
+  ]
+}
