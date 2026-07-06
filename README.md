@@ -78,8 +78,14 @@ clears stale offline copies.)
   python3 -m http.server 8080
   # then visit http://localhost:8080
   ```
-- The default 8-point checklist and its confirmation prompts live in the
-  `DEFAULT_ITEMS` array near the top of the script block in `index.html`. Users can
-  also edit, reorder, add, or remove checks per rig from within the app.
+- Each rig picks a **type** on creation (Pop-Top Caravan, Full-Size Caravan, Box
+  Trailer, Boat Trailer, Camper Trailer, or a blank Custom) and is seeded with that
+  type's sectioned checklist. The templates live in the `TEMPLATES` array near the top
+  of the script block in `index.html` — each item has a `section` so the list renders
+  in grouped, pilot-style sections. Users can also edit, reorder, re-section, add, or
+  remove checks per rig from within the app.
+- The app version is set once, in `window.APP_VERSION` near the top of `<body>`. That
+  single value drives both the footer text and the service-worker cache name, so on
+  each release bump just that line (SemVer: PATCH for fixes, MINOR for features).
 - To change the icon, edit `icon.svg` and re-export the three PNGs at 192, 512, and
   180 px.

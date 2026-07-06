@@ -89,7 +89,24 @@
   /* ── Checklist ────────────────────────────────────────────────────── */
   .list-header { display: flex; align-items: center; justify-content: space-between; gap: 10px; margin: 4px 2px -2px; }
   .list-eyebrow { font-size: 11px; text-transform: uppercase; letter-spacing: 0.1em; color: var(--muted); }
-  .checklist { display: flex; flex-direction: column; gap: 10px; }
+  .checklist { display: flex; flex-direction: column; gap: 18px; }
+  .section { display: flex; flex-direction: column; gap: 10px; }
+  .section-head { display: flex; align-items: center; justify-content: space-between; gap: 10px; padding: 0 4px 2px; border-bottom: 1px solid var(--border); }
+  .section-name { font-family: 'Space Mono', monospace; font-size: 11px; letter-spacing: 0.12em; text-transform: uppercase; color: var(--accent); opacity: 0.85; }
+  .section-count { font-family: 'Space Mono', monospace; font-size: 11px; color: var(--muted); transition: color 0.3s; }
+  .section-head.done .section-count { color: var(--accent); }
+  .empty-note { text-align: center; color: var(--muted); font-size: 13px; line-height: 1.6; padding: 22px 18px; border: 1px dashed var(--border); border-radius: 14px; }
+
+  .tpl-label { display: block; font-size: 11px; text-transform: uppercase; letter-spacing: 0.1em; color: var(--muted); margin: 0 2px 6px; }
+  .tpl-select {
+    -webkit-appearance: none; appearance: none; width: 100%;
+    background-color: var(--surface2); border: 1px solid var(--border); border-radius: 10px;
+    color: var(--text); font-family: 'DM Sans', sans-serif; font-size: 14px; padding: 11px 36px 11px 14px;
+    cursor: pointer; outline: none;
+    background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="%237a8099" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>');
+    background-repeat: no-repeat; background-position: right 12px center;
+  }
+  .tpl-select:focus { border-color: var(--accent-mid); }
 
   .reset-inline {
     -webkit-appearance: none; display: inline-flex; align-items: center; gap: 6px;
@@ -177,6 +194,9 @@
   .edit-hint-input { background: transparent; border: none; border-bottom: 1px solid var(--border); color: var(--muted); font-family: 'DM Sans', sans-serif; font-size: 12px; padding: 3px 2px; outline: none; }
   .edit-hint-input:focus { border-bottom-color: var(--accent-mid); color: var(--text); }
   .edit-hint-input::placeholder { color: var(--muted); opacity: 0.6; }
+  .edit-section-input { background: transparent; border: none; border-bottom: 1px dashed var(--border); color: var(--accent); font-family: 'Space Mono', monospace; font-size: 10px; letter-spacing: 0.06em; text-transform: uppercase; padding: 4px 2px 2px; outline: none; opacity: 0.85; }
+  .edit-section-input:focus { border-bottom-color: var(--accent-mid); opacity: 1; }
+  .edit-section-input::placeholder { color: var(--muted); opacity: 0.6; }
   .edit-controls { display: flex; flex-direction: column; gap: 4px; flex-shrink: 0; }
   .mini-btn { -webkit-appearance: none; width: 30px; height: 26px; background: var(--surface2); border: 1px solid var(--border); border-radius: 7px; color: var(--muted); cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 13px; transition: color 0.2s, border-color 0.2s; }
   .mini-btn:active { border-color: var(--accent-mid); color: var(--accent); }
@@ -184,10 +204,13 @@
   .mini-btn svg { width: 13px; height: 13px; }
   .mini-btn:disabled { opacity: 0.25; }
 
-  .add-item-row { display: flex; gap: 8px; padding: 12px 14px; }
-  .add-item-input { flex: 1; background: var(--surface2); border: 1px solid var(--border); border-radius: 10px; color: var(--text); font-family: 'DM Sans', sans-serif; font-size: 14px; padding: 10px 14px; outline: none; }
+  .add-item-row { display: flex; flex-wrap: wrap; gap: 8px; padding: 12px 14px; }
+  .add-item-input { flex: 1 1 140px; background: var(--surface2); border: 1px solid var(--border); border-radius: 10px; color: var(--text); font-family: 'DM Sans', sans-serif; font-size: 14px; padding: 10px 14px; outline: none; }
   .add-item-input:focus { border-color: var(--accent-mid); }
   .add-item-input::placeholder { color: var(--muted); }
+  .add-section-input { flex: 0 1 110px; min-width: 90px; background: var(--surface2); border: 1px solid var(--border); border-radius: 10px; color: var(--text); font-family: 'Space Mono', monospace; font-size: 12px; padding: 10px 12px; outline: none; }
+  .add-section-input:focus { border-color: var(--accent-mid); }
+  .add-section-input::placeholder { color: var(--muted); }
   .add-item-btn { -webkit-appearance: none; background: var(--accent-dim); border: 1px solid var(--accent-mid); border-radius: 10px; color: var(--accent); font-family: 'DM Sans', sans-serif; font-size: 13px; font-weight: 600; padding: 10px 16px; cursor: pointer; white-space: nowrap; }
   .add-item-btn:active { background: rgba(45,255,143,0.22); }
 
@@ -206,8 +229,10 @@
   .profile-item { display: flex; align-items: center; gap: 12px; background: var(--surface2); border: 1px solid var(--border); border-radius: 12px; padding: 12px 14px; cursor: pointer; transition: border-color 0.2s; }
   .profile-item:active { border-color: var(--accent-mid); }
   .profile-item.active { border-color: var(--accent-mid); background: var(--accent-dim); }
-  .profile-item-name { flex: 1; font-size: 14px; font-weight: 500; color: var(--text); }
+  .profile-item-main { flex: 1; min-width: 0; }
+  .profile-item-name { font-size: 14px; font-weight: 500; color: var(--text); }
   .profile-item.active .profile-item-name { color: var(--accent); }
+  .profile-item-type { font-size: 11px; color: var(--muted); margin-top: 2px; }
   .profile-item-active { font-size: 10px; color: var(--accent); text-transform: uppercase; letter-spacing: 0.08em; }
   .profile-item-btn { -webkit-appearance: none; background: transparent; border: none; color: var(--muted); cursor: pointer; font-size: 13px; padding: 4px 6px; border-radius: 4px; transition: color 0.2s; }
   .profile-item-btn:active { color: var(--accent); }
@@ -237,7 +262,7 @@
 
 <!-- Single source of truth for the app version: drives the footer text and the
      service-worker cache name. Bump this one line on each release (SemVer). -->
-<script>window.APP_VERSION = '1.0.6';</script>
+<script>window.APP_VERSION = '1.1.0';</script>
 
 <header>
   <div class="header-icon">
@@ -296,11 +321,12 @@
     <div class="edit-list" id="edit-list"></div>
     <div class="add-item-row">
       <input class="add-item-input" id="add-item-input" type="text" placeholder="New check (e.g. Tyre pressures)" maxlength="40" onkeydown="if(event.key==='Enter')addItem()">
+      <input class="add-section-input" id="add-section-input" type="text" placeholder="Section" maxlength="28" onkeydown="if(event.key==='Enter')addItem()">
       <button class="add-item-btn" onclick="addItem()">Add</button>
     </div>
-    <div class="settings-note">Reorder with the arrows, edit the label and its confirmation prompt inline, or remove checks that don't apply to this rig. Every rig keeps its own list.</div>
+    <div class="settings-note">Checks are grouped by their <b>Section</b>. Edit the label, its confirmation prompt, or the section inline; reorder with the arrows; remove any that don't apply. Every rig keeps its own list.</div>
     <div style="padding:0 14px 14px;">
-      <button class="s-btn" onclick="restoreDefaults()">Restore default checklist</button>
+      <button class="s-btn" id="restore-btn" onclick="restoreDefaults()">Reset to defaults</button>
     </div>
   </div>
 </div>
@@ -316,6 +342,8 @@
     <div class="modal-title">Your rigs</div>
     <div class="modal-body">Switch between trailers or add a new one. Each rig keeps its own checklist and departure history.</div>
     <div class="profile-list" id="profile-list"></div>
+    <label class="tpl-label" for="profile-template">New rig checklist type</label>
+    <select class="tpl-select" id="profile-template"></select>
     <div class="profile-add-row">
       <input class="profile-add-input" id="profile-add-input" type="text" placeholder="New rig name…" maxlength="30" onkeydown="if(event.key==='Enter')addProfile()">
       <button class="profile-add-btn" onclick="addProfile()">Add</button>
@@ -328,10 +356,12 @@
 <div class="welcome-overlay" id="welcome-overlay" style="display:none">
   <div class="welcome-card">
     <h2>Welcome to Tow Mate</h2>
-    <p>Name your rig to get started. Tow Mate walks you through a pre-departure safety check — flip each tab as you confirm it, like a pilot before take-off.</p>
+    <p>Name your rig and pick its type — Tow Mate loads a matching pre-departure checklist you can tweak any time. Then flip each tab as you confirm it, like a pilot before take-off.</p>
     <div class="profile-add-row" style="margin-bottom:10px;">
-      <input class="profile-add-input" id="welcome-name-input" type="text" placeholder="e.g. Jayco Caravan" maxlength="30" onkeydown="if(event.key==='Enter')createFirstProfile()">
+      <input class="profile-add-input" id="welcome-name-input" type="text" placeholder="e.g. Jayco Pop-Top" maxlength="30" onkeydown="if(event.key==='Enter')createFirstProfile()">
     </div>
+    <label class="tpl-label" for="welcome-template">Rig type</label>
+    <select class="tpl-select" id="welcome-template" style="margin-bottom:16px;"></select>
     <button class="profile-add-btn" style="width:100%;" onclick="createFirstProfile()">Get started</button>
   </div>
 </div>
@@ -340,18 +370,134 @@
 (function(){
   'use strict';
 
-  // ── Default checklist ─────────────────────────────────────────────────
-  const DEFAULT_ITEMS = [
-    { id: 'chain1',  name: 'Safety Chain 1',           hint: 'Crossed under the coupling and shackled to the tow vehicle.' },
-    { id: 'chain2',  name: 'Safety Chain 2',           hint: 'Crossed the opposite way and shackled — no slack dragging.' },
-    { id: 'lanyard', name: 'Emergency E-Brake Lanyard',hint: 'Clipped to the tow vehicle, not to a safety chain.' },
-    { id: 'hitch',   name: 'Hitch Coupling',           hint: 'Seated on the ball, latch closed and locked.' },
-    { id: 'plug12',  name: '12 Pin Trailer Plug',      hint: 'Seated firm — lights and brakes responding.' },
-    { id: 'anderson',name: 'RED Anderson Plug',        hint: 'Connected square and fully seated.' },
-    { id: 'handbrake',name:'Caravan Handbrake',        hint: 'Released before moving off.' },
-    { id: 'poptop',  name: 'Pop Top Stowage Clips Secured', hint: 'Roof clamped down and every clip latched for travel.' },
-    { id: 'esc',     name: 'Electronic Stability Control', hint: 'Armed and indicator confirmed.' }
+  // ── Checklist templates (per rig type) ────────────────────────────────
+  // Each item has a section so the checklist renders in grouped, pilot-style
+  // sections. Item ids only need to be unique within a template.
+  const TEMPLATES = [
+    {
+      id: 'poptop', name: 'Pop-Top Caravan',
+      items: [
+        { id:'coupling',   section:'Coupling & Chassis', name:"Coupling Seated & Locked",        hint:"On the ball, latch closed and locked." },
+        { id:'chain1',     section:'Coupling & Chassis', name:"Safety Chain 1",                  hint:"Crossed and shackled to the tow vehicle." },
+        { id:'chain2',     section:'Coupling & Chassis', name:"Safety Chain 2",                  hint:"Crossed the opposite way and shackled." },
+        { id:'lanyard',    section:'Coupling & Chassis', name:"Breakaway Lanyard",               hint:"Clipped to the tow vehicle, not a chain." },
+        { id:'jockey',     section:'Coupling & Chassis', name:"Jockey Wheel",                    hint:"Wound up and swung clear, or removed." },
+        { id:'legs',       section:'Coupling & Chassis', name:"Stabiliser Legs",                 hint:"All fully wound up." },
+        { id:'chocks',     section:'Coupling & Chassis', name:"Wheel Chocks",                    hint:"Removed and stowed." },
+        { id:'plug12',     section:'Electrical & Brakes',name:"12 Pin Trailer Plug",             hint:"Seated firm; lights and brakes responding." },
+        { id:'anderson',   section:'Electrical & Brakes',name:"RED Anderson Plug",               hint:"Connected square and fully seated." },
+        { id:'handbrake',  section:'Electrical & Brakes',name:"Caravan Handbrake",               hint:"Released before moving off." },
+        { id:'poptopclips',section:'Exterior',           name:"Pop Top Stowage Clips Secured",   hint:"Roof clamped down and every clip latched." },
+        { id:'awning',     section:'Exterior',           name:"Awning",                         hint:"Rolled up, arms locked, travel strap on." },
+        { id:'hatches',    section:'Exterior',           name:"Hatches & Lockers",              hint:"All external hatches and lockers latched." },
+        { id:'door',       section:'Exterior',           name:"Entry Door",                     hint:"Closed and locked." },
+        { id:'antenna',    section:'Exterior',           name:"TV Antenna",                     hint:"Lowered." },
+        { id:'step',       section:'Exterior',           name:"Entry Step",                     hint:"Retracted." },
+        { id:'gaspower',   section:'Exterior',           name:"Gas & 240V Power",               hint:"Gas off; power lead disconnected and stowed." },
+        { id:'cupboards',  section:'Interior',           name:"Cupboards & Drawers",            hint:"Latched shut." },
+        { id:'fridge',     section:'Interior',           name:"Fridge",                         hint:"Latched and switched to travel mode." },
+        { id:'vents',      section:'Interior',           name:"Roof Vents & Windows",           hint:"Closed." },
+        { id:'tyres',      section:'Running Gear',       name:"Tyres & Spare",                  hint:"Pressures correct (cold); spare present." },
+        { id:'mirrors',    section:'Tow Vehicle',        name:"Towing Mirrors",                 hint:"Fitted and adjusted." },
+        { id:'esc',        section:'Tow Vehicle',        name:"Electronic Stability Control",   hint:"Armed and indicator confirmed." },
+        { id:'brakectrl',  section:'Tow Vehicle',        name:"Brake Controller",               hint:"Connected and gain set." },
+        { id:'lights',     section:'Final Checks',       name:"Lights Buddy-Check",             hint:"Indicators, brake and tail lights working." },
+        { id:'walkaround', section:'Final Checks',       name:"Final Walkaround",               hint:"Slow lap; nothing left behind." }
+      ]
+    },
+    {
+      id: 'fullvan', name: 'Full-Size Caravan',
+      items: [
+        { id:'coupling',   section:'Coupling & Chassis', name:"Coupling Seated & Locked",      hint:"On the ball, latch closed and locked." },
+        { id:'chain1',     section:'Coupling & Chassis', name:"Safety Chain 1",                hint:"Crossed and shackled to the tow vehicle." },
+        { id:'chain2',     section:'Coupling & Chassis', name:"Safety Chain 2",                hint:"Crossed the opposite way and shackled." },
+        { id:'lanyard',    section:'Coupling & Chassis', name:"Breakaway Lanyard",             hint:"Clipped to the tow vehicle, not a chain." },
+        { id:'wdh',        section:'Coupling & Chassis', name:"Weight Distribution Bars",      hint:"Fitted and tensioned (if used)." },
+        { id:'jockey',     section:'Coupling & Chassis', name:"Jockey Wheel",                  hint:"Wound up and swung clear, or removed." },
+        { id:'legs',       section:'Coupling & Chassis', name:"Stabiliser Legs",               hint:"All fully wound up." },
+        { id:'chocks',     section:'Coupling & Chassis', name:"Wheel Chocks",                  hint:"Removed and stowed." },
+        { id:'plug12',     section:'Electrical & Brakes',name:"12 Pin Trailer Plug",           hint:"Seated firm; lights and brakes responding." },
+        { id:'anderson',   section:'Electrical & Brakes',name:"RED Anderson Plug",             hint:"Connected square and fully seated." },
+        { id:'handbrake',  section:'Electrical & Brakes',name:"Caravan Handbrake",             hint:"Released before moving off." },
+        { id:'awning',     section:'Exterior',           name:"Awning",                       hint:"Rolled up, arms locked, travel strap on." },
+        { id:'hatches',    section:'Exterior',           name:"Hatches & Lockers",            hint:"All external hatches and lockers latched." },
+        { id:'door',       section:'Exterior',           name:"Entry Door",                   hint:"Closed and locked." },
+        { id:'antenna',    section:'Exterior',           name:"TV Antenna",                   hint:"Lowered." },
+        { id:'step',       section:'Exterior',           name:"Entry Step",                   hint:"Retracted." },
+        { id:'gaspower',   section:'Exterior',           name:"Gas & 240V Power",             hint:"Gas off; power lead disconnected and stowed." },
+        { id:'cupboards',  section:'Interior',           name:"Cupboards & Drawers",          hint:"Latched shut." },
+        { id:'fridge',     section:'Interior',           name:"Fridge",                       hint:"Latched and switched to travel mode." },
+        { id:'vents',      section:'Interior',           name:"Roof Vents & Windows",         hint:"Closed." },
+        { id:'tyres',      section:'Running Gear',       name:"Tyres & Spare",                hint:"Pressures correct (cold); spare present." },
+        { id:'mirrors',    section:'Tow Vehicle',        name:"Towing Mirrors",               hint:"Fitted and adjusted." },
+        { id:'esc',        section:'Tow Vehicle',        name:"Electronic Stability Control", hint:"Armed and indicator confirmed." },
+        { id:'brakectrl',  section:'Tow Vehicle',        name:"Brake Controller",             hint:"Connected and gain set." },
+        { id:'lights',     section:'Final Checks',       name:"Lights Buddy-Check",           hint:"Indicators, brake and tail lights working." },
+        { id:'walkaround', section:'Final Checks',       name:"Final Walkaround",             hint:"Slow lap; nothing left behind." }
+      ]
+    },
+    {
+      id: 'boxtrailer', name: 'Box Trailer',
+      items: [
+        { id:'coupling',   section:'Coupling & Chassis', name:"Coupling Seated & Locked", hint:"On the ball, latch closed and locked." },
+        { id:'chains',     section:'Coupling & Chassis', name:"Safety Chains",            hint:"Crossed and shackled to the tow vehicle." },
+        { id:'jockey',     section:'Coupling & Chassis', name:"Jockey Wheel",             hint:"Wound up and clamped, or removed." },
+        { id:'plug',       section:'Electrical',         name:"Trailer Plug",             hint:"Connected; lights working." },
+        { id:'load',       section:'Load',               name:"Load Secured",             hint:"Straps or ratchets tight; nothing loose." },
+        { id:'tailgate',   section:'Load',               name:"Tailgate & Sides",         hint:"Latched and pinned." },
+        { id:'capacity',   section:'Load',               name:"Within Rated Capacity",    hint:"Load under the trailer limit." },
+        { id:'tyres',      section:'Running Gear',       name:"Tyres & Spare",            hint:"Pressures correct; spare present." },
+        { id:'lights',     section:'Final Checks',       name:"Lights Check",             hint:"Indicators, brake and tail lights working." },
+        { id:'walkaround', section:'Final Checks',       name:"Final Walkaround",         hint:"Slow lap; nothing left behind." }
+      ]
+    },
+    {
+      id: 'boat', name: 'Boat Trailer',
+      items: [
+        { id:'coupling',   section:'Coupling & Chassis', name:"Coupling Seated & Locked",   hint:"On the ball, latch closed and locked." },
+        { id:'chains',     section:'Coupling & Chassis', name:"Safety Chains",              hint:"Crossed and shackled to the tow vehicle." },
+        { id:'jockey',     section:'Coupling & Chassis', name:"Jockey Wheel",               hint:"Wound up and clamped." },
+        { id:'winch',      section:'Boat Secured',       name:"Bow Winch & Safety Chain",   hint:"Bow eye winched tight and safety chain on." },
+        { id:'transom',    section:'Boat Secured',       name:"Transom Tie-Downs",          hint:"Both stern straps tight." },
+        { id:'motor',      section:'Boat Secured',       name:"Outboard Raised & Locked",   hint:"Up and secured with transom saver." },
+        { id:'gear',       section:'Boat Secured',       name:"Loose Gear Stowed",          hint:"Everything aboard secured." },
+        { id:'plug',       section:'Electrical',         name:"Trailer Plug",               hint:"Connected; lights working." },
+        { id:'tyres',      section:'Running Gear',       name:"Tyres & Spare",              hint:"Pressures correct; spare present." },
+        { id:'bearings',   section:'Running Gear',       name:"Wheel Bearings",             hint:"No play; bearing protectors OK." },
+        { id:'lights',     section:'Final Checks',       name:"Lights Check",               hint:"Indicators, brake and tail lights working." },
+        { id:'walkaround', section:'Final Checks',       name:"Final Walkaround",           hint:"Straps double-checked; nothing left behind." }
+      ]
+    },
+    {
+      id: 'camper', name: 'Camper Trailer',
+      items: [
+        { id:'coupling',   section:'Coupling & Chassis', name:"Coupling Seated & Locked", hint:"On the ball, latch closed and locked." },
+        { id:'chains',     section:'Coupling & Chassis', name:"Safety Chains",            hint:"Crossed and shackled to the tow vehicle." },
+        { id:'lanyard',    section:'Coupling & Chassis', name:"Breakaway Lanyard",        hint:"Clipped to the tow vehicle, not a chain." },
+        { id:'jockey',     section:'Coupling & Chassis', name:"Jockey Wheel",             hint:"Wound up and clamped, or removed." },
+        { id:'chocks',     section:'Coupling & Chassis', name:"Wheel Chocks",             hint:"Removed and stowed." },
+        { id:'plug',       section:'Electrical & Brakes',name:"Trailer Plug",             hint:"Connected; lights working." },
+        { id:'handbrake',  section:'Electrical & Brakes',name:"Handbrake",                hint:"Released before moving off (if fitted)." },
+        { id:'lid',        section:'Exterior',           name:"Roof / Lid Latched",       hint:"Closed and every catch secured for travel." },
+        { id:'poles',      section:'Exterior',           name:"Poles & Awning Stowed",    hint:"All poles, pegs and canvas packed." },
+        { id:'hatches',    section:'Exterior',           name:"Hatches & Lockers",        hint:"All external hatches and lockers latched." },
+        { id:'load',       section:'Load',               name:"Load Secured",             hint:"Straps tight; nothing loose." },
+        { id:'tyres',      section:'Running Gear',       name:"Tyres & Spare",            hint:"Pressures correct; spare present." },
+        { id:'lights',     section:'Final Checks',       name:"Lights Check",             hint:"Indicators, brake and tail lights working." },
+        { id:'walkaround', section:'Final Checks',       name:"Final Walkaround",         hint:"Slow lap; nothing left behind." }
+      ]
+    },
+    { id: 'custom', name: 'Custom (start blank)', items: [] }
   ];
+  const DEFAULT_TEMPLATE_ID = 'poptop';
+
+  function getTemplate(id) {
+    return TEMPLATES.find(t => t.id === id)
+        || TEMPLATES.find(t => t.id === DEFAULT_TEMPLATE_ID)
+        || TEMPLATES[0];
+  }
+  function templateItemsCopy(id) { return getTemplate(id).items.map(i => ({ ...i })); }
+  function getActiveTemplate() { const p = getActiveProfile(); return getTemplate(p && p.template); }
 
   const ICON_CHECK = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>';
 
@@ -370,7 +516,7 @@
   // ── Data model per rig ──────────────────────────────────────────────────
   function getItems() {
     try { const raw = pGet('items'); if (raw) return JSON.parse(raw); } catch(e) {}
-    return DEFAULT_ITEMS.map(i => ({ ...i }));
+    return getActiveTemplate().items.map(i => ({ ...i }));
   }
   function saveItems(items) { pSet('items', JSON.stringify(items)); }
 
@@ -382,25 +528,52 @@
     const items = getItems();
     const state = getCheckState();
     const list = document.getElementById('checklist');
+
+    if (items.length === 0) {
+      list.innerHTML = '<div class="empty-note">No checks yet — add items in the editor below, or reset this rig to its type defaults.</div>';
+      updateHero();
+      return;
+    }
+
     const firstUnsetIdx = items.findIndex(it => !state.includes(it.id));
 
-    list.innerHTML = items.map((it, idx) => {
-      const isSet = state.includes(it.id);
-      const isNext = !isSet && idx === firstUnsetIdx;
-      return `
-      <button class="item ${isSet ? 'set' : ''} ${isNext ? 'next' : ''}" data-id="${it.id}" aria-pressed="${isSet}">
-        <div class="item-num">${String(idx + 1).padStart(2,'0')}</div>
-        <div class="item-body">
-          <div class="item-name">${esc(it.name)}</div>
-          ${it.hint ? `<div class="item-hint">${esc(it.hint)}</div>` : ''}
-        </div>
-        <div class="tab-flip">
-          <div class="tab-inner">
-            <div class="tab-face tab-front">CHECK</div>
-            <div class="tab-face tab-back">${ICON_CHECK}SET</div>
+    // Group items into consecutive section runs.
+    const runs = [];
+    items.forEach((it, idx) => {
+      const sec = it.section || 'Checklist';
+      const last = runs[runs.length - 1];
+      if (last && last.section === sec) last.rows.push({ it, idx });
+      else runs.push({ section: sec, rows: [{ it, idx }] });
+    });
+
+    list.innerHTML = runs.map(run => {
+      const done = run.rows.filter(o => state.includes(o.it.id)).length;
+      const total = run.rows.length;
+      const header = `
+        <div class="section-head ${done === total ? 'done' : ''}">
+          <span class="section-name">${esc(run.section)}</span>
+          <span class="section-count">${done}/${total}</span>
+        </div>`;
+      const rows = run.rows.map(o => {
+        const it = o.it;
+        const isSet = state.includes(it.id);
+        const isNext = !isSet && o.idx === firstUnsetIdx;
+        return `
+        <button class="item ${isSet ? 'set' : ''} ${isNext ? 'next' : ''}" data-id="${it.id}" aria-pressed="${isSet}">
+          <div class="item-num">${String(o.idx + 1).padStart(2,'0')}</div>
+          <div class="item-body">
+            <div class="item-name">${esc(it.name)}</div>
+            ${it.hint ? `<div class="item-hint">${esc(it.hint)}</div>` : ''}
           </div>
-        </div>
-      </button>`;
+          <div class="tab-flip">
+            <div class="tab-inner">
+              <div class="tab-face tab-front">CHECK</div>
+              <div class="tab-face tab-back">${ICON_CHECK}SET</div>
+            </div>
+          </div>
+        </button>`;
+      }).join('');
+      return `<div class="section">${header}${rows}</div>`;
     }).join('');
 
     list.querySelectorAll('.item').forEach(el => {
@@ -408,6 +581,18 @@
     });
 
     updateHero();
+  }
+
+  // Recompute each section header's done/total from the current DOM state.
+  function updateSectionCounts() {
+    document.querySelectorAll('#checklist .section').forEach(sec => {
+      const total = sec.querySelectorAll('.item').length;
+      const done = sec.querySelectorAll('.item.set').length;
+      const head = sec.querySelector('.section-head');
+      const count = head && head.querySelector('.section-count');
+      if (count) count.textContent = done + '/' + total;
+      if (head) head.classList.toggle('done', total > 0 && done === total);
+    });
   }
 
   function toggleItem(id) {
@@ -427,6 +612,7 @@
       el.setAttribute('aria-pressed', nowSet);
     }
     updateNextMarker();
+    updateSectionCounts();
     updateHero();
 
     // If this flip just completed the whole checklist, bring the "Ready to tow"
@@ -545,6 +731,7 @@
         <div class="edit-inputs">
           <input class="edit-name-input" value="${esc(it.name)}" maxlength="40" oninput="editItem('${it.id}','name',this.value)">
           <input class="edit-hint-input" value="${esc(it.hint || '')}" maxlength="90" placeholder="Confirmation prompt (optional)" oninput="editItem('${it.id}','hint',this.value)">
+          <input class="edit-section-input" value="${esc(it.section || '')}" maxlength="28" placeholder="Section" onchange="editItem('${it.id}','section',this.value)">
         </div>
         <div class="edit-controls">
           <button class="mini-btn del" title="Remove" onclick="removeItem('${it.id}')">
@@ -552,12 +739,18 @@
           </button>
         </div>
       </div>`).join('');
+    const restore = document.getElementById('restore-btn');
+    if (restore) restore.textContent = 'Reset to ' + getActiveTemplate().name + ' defaults';
   }
 
   window.editItem = function(id, field, value) {
     const items = getItems();
     const it = items.find(x => x.id === id);
-    if (it) { it[field] = value; saveItems(items); if (field === 'name' || field === 'hint') softRefresh(); }
+    if (!it) return;
+    it[field] = value;
+    saveItems(items);
+    if (field === 'section') render();      // regroup the checklist
+    else softRefresh();                     // name/hint: update text, keep flip state
   };
 
   window.moveItem = function(id, dir) {
@@ -573,7 +766,6 @@
 
   window.removeItem = function(id) {
     let items = getItems();
-    if (items.length <= 1) return;
     items = items.filter(x => x.id !== id);
     saveItems(items);
     saveCheckState(getCheckState().filter(x => x !== id));
@@ -583,10 +775,13 @@
 
   window.addItem = function() {
     const input = document.getElementById('add-item-input');
+    const secInput = document.getElementById('add-section-input');
     const name = input.value.trim();
     if (!name) { input.style.borderColor = 'var(--danger)'; setTimeout(() => input.style.borderColor = '', 1200); return; }
     const items = getItems();
-    items.push({ id: 'i_' + Date.now(), name, hint: '' });
+    const section = (secInput && secInput.value.trim())
+      || (items.length ? items[items.length - 1].section : '') || 'Checklist';
+    items.push({ id: 'i_' + Date.now(), name, hint: '', section });
     saveItems(items);
     input.value = '';
     renderEditList();
@@ -594,8 +789,9 @@
   };
 
   window.restoreDefaults = function() {
-    if (!confirm('Restore the default 8-point checklist for this rig? Custom items will be removed and progress reset.')) return;
-    saveItems(DEFAULT_ITEMS.map(i => ({ ...i })));
+    const tpl = getActiveTemplate();
+    if (!confirm('Reset this rig to the "' + tpl.name + '" default checklist? Custom items will be removed and progress reset.')) return;
+    saveItems(tpl.items.map(i => ({ ...i })));
     saveCheckState([]);
     renderEditList();
     render();
@@ -628,7 +824,10 @@
     const activeId = getActiveProfileId();
     list.innerHTML = profiles.map(p => `
       <div class="profile-item ${p.id === activeId ? 'active' : ''}" onclick="switchProfile('${p.id}')">
-        <div class="profile-item-name">${esc(p.name)}</div>
+        <div class="profile-item-main">
+          <div class="profile-item-name">${esc(p.name)}</div>
+          <div class="profile-item-type">${esc(getTemplate(p.template).name)}</div>
+        </div>
         ${p.id === activeId ? '<div class="profile-item-active">Active</div>' : ''}
         <button class="profile-item-btn" title="Rename" onclick="event.stopPropagation(); renameProfile('${p.id}')">&#9998;</button>
         ${profiles.length > 1 ? `<button class="profile-item-btn del" title="Delete" onclick="event.stopPropagation(); deleteProfile('${p.id}')">&#10005;</button>` : ''}
@@ -641,11 +840,15 @@
     const input = document.getElementById('profile-add-input');
     const name = input.value.trim();
     if (!name) { input.style.borderColor = 'var(--danger)'; setTimeout(() => input.style.borderColor = '', 1200); return; }
+    const sel = document.getElementById('profile-template');
+    const template = (sel && sel.value) || DEFAULT_TEMPLATE_ID;
     const profiles = getProfiles();
     const id = 'rig_' + Date.now();
-    profiles.push({ id, name, createdAt: new Date().toISOString() });
+    profiles.push({ id, name, template, createdAt: new Date().toISOString() });
     saveProfiles(profiles);
     setActiveProfileId(id);
+    saveItems(templateItemsCopy(template));
+    saveCheckState([]);
     input.value = '';
     closeProfileModal();
     reloadRig();
@@ -679,9 +882,13 @@
   window.createFirstProfile = function() {
     const input = document.getElementById('welcome-name-input');
     const name = input.value.trim() || 'My Rig';
+    const sel = document.getElementById('welcome-template');
+    const template = (sel && sel.value) || DEFAULT_TEMPLATE_ID;
     const id = 'rig_' + Date.now();
-    saveProfiles([{ id, name, createdAt: new Date().toISOString() }]);
+    saveProfiles([{ id, name, template, createdAt: new Date().toISOString() }]);
     setActiveProfileId(id);
+    saveItems(templateItemsCopy(template));
+    saveCheckState([]);
     document.getElementById('welcome-overlay').style.display = 'none';
     reloadRig();
   };
@@ -740,8 +947,18 @@
     return new Date().toLocaleTimeString([], { hour: 'numeric', minute: '2-digit' });
   }
 
+  // Fill the rig-type dropdowns (welcome screen and add-rig modal).
+  function populateTemplateSelects() {
+    const opts = TEMPLATES.map(t => '<option value="' + t.id + '">' + esc(t.name) + '</option>').join('');
+    ['welcome-template', 'profile-template'].forEach(function(id) {
+      const el = document.getElementById(id);
+      if (el) { el.innerHTML = opts; el.value = DEFAULT_TEMPLATE_ID; }
+    });
+  }
+
   // ── Init ────────────────────────────────────────────────────────────────
   renderFooter();
+  populateTemplateSelects();
   applyPinned();
   setupStickyObserver();
 
