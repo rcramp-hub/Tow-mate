@@ -1,4 +1,7 @@
-const CACHE = 'towmate-v1.0.5';
+// The version comes from index.html via the ?v= query on the register() call,
+// so the app version is the single source of truth for the cache name too.
+const VERSION = new URLSearchParams(self.location.search).get('v') || '0';
+const CACHE = 'towmate-v' + VERSION;
 const ASSETS = [
   './index.html',
   './manifest.json',

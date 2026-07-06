@@ -227,9 +227,17 @@
   .welcome-card { background: var(--surface); border: 1px solid var(--border); border-radius: 20px; padding: 28px 24px; width: 100%; max-width: 380px; text-align: center; }
   .welcome-card h2 { font-family: 'Space Mono', monospace; font-size: 16px; color: var(--accent); margin-bottom: 14px; }
   .welcome-card p { font-size: 13px; color: var(--muted); line-height: 1.7; margin-bottom: 18px; }
+
+  footer { text-align: center; padding: 22px 20px 30px; font-family: 'Space Mono', monospace; letter-spacing: 0.04em; line-height: 1.7; }
+  footer .footer-ver { font-size: 11px; color: var(--muted); }
+  footer .footer-copy { font-size: 10px; color: var(--muted); opacity: 0.7; }
 </style>
 </head>
 <body>
+
+<!-- Single source of truth for the app version: drives the footer text and the
+     service-worker cache name. Bump this one line on each release (SemVer). -->
+<script>window.APP_VERSION = '1.0.6';</script>
 
 <header>
   <div class="header-icon">
@@ -296,6 +304,11 @@
     </div>
   </div>
 </div>
+
+<footer>
+  <div class="footer-ver" id="app-version">Tow Mate</div>
+  <div class="footer-copy" id="app-copy">&copy; 2026 Ryan Cramp</div>
+</footer>
 
 <!-- Rig profile modal -->
 <div class="modal-overlay" id="profile-modal">
@@ -712,12 +725,23 @@
   }
 
   // ── Helpers ─────────────────────────────────────────────────────────────
+  function renderFooter() {
+    const start = 2026;                       // year of first publication
+    const now = new Date().getFullYear();
+    const years = now > start ? (start + '\u2013' + now) : String(start);
+    const ver = document.getElementById('app-version');
+    const copy = document.getElementById('app-copy');
+    if (ver) ver.textContent = 'Tow Mate v' + (window.APP_VERSION || '1.0.0');
+    if (copy) copy.textContent = '\u00A9 ' + years + ' Ryan Cramp \u00B7 All rights reserved';
+  }
+
   function esc(s) { return String(s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
   function timeNow() {
     return new Date().toLocaleTimeString([], { hour: 'numeric', minute: '2-digit' });
   }
 
   // ── Init ────────────────────────────────────────────────────────────────
+  renderFooter();
   applyPinned();
   setupStickyObserver();
 
@@ -736,7 +760,7 @@
   // Register the service worker for offline use (network-first caching).
   if ('serviceWorker' in navigator) {
     window.addEventListener('load', function () {
-      navigator.serviceWorker.register('sw.js').catch(function () {});
+      navigator.serviceWorker.register('sw.js?v=' + (window.APP_VERSION || '')).catch(function () {});
     });
   }
 </script>
